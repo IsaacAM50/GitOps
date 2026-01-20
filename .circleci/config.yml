@@ -1,0 +1,204 @@
+version: 2.1
+
+parameters:
+  username:
+    type: string
+    default: "demo"
+  trigger-deploy:
+    type: boolean
+    default: false
+
+orbs:
+  docker: circleci/docker@2.2.0
+
+executors:
+  python-executor:
+    docker:
+      - image: cimg/python:3.11
+  node-executor:
+    docker:
+      - image: cimg/node:18.19
+
+jobs:
+  test-backend:
+    executor: python-executor
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - deps-{{ checksum "app/backend/requirements.txt" }}
+      - run:
+          name: Install dependencies
+          command: |
+            cd app/backend
+            pip install -r requirements.txt pytest pytest-cov flake8
+      - save_cache:
+          key: deps-{{ checksum "app/backend/requirements.txt" }}
+          paths:
+            - ~/.cache/pip
+      - run:
+          name: Lint code
+          command: |
+            cd app/backend
+            flake8 app/ --max-line-length=120
+      - run:
+          name: Run tests
+          command: |
+            cd app/backend
+            pytest tests/ --cov=app
+
+  test-frontend:
+    executor: node-executor
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - node-{{ checksum "app/frontend/package-lock.json" }}
+      - run:
+          name: Install dependencies
+          command: |
+            cd app/frontend
+            npm ci
+      - save_cache:
+          key: node-{{ checksum "app/frontend/package-lock.json" }}
+          paths:
+            - app/frontend/node_modules
+      - run:
+          name: Build frontend
+          command: |
+            cd app/frontend
+            npm run build
+
+  build-and-push:
+    executor: docker/docker
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.24
+      - run:
+          name: Build personalized images
+          command: |
+            USERNAME="<< pipeline.parameters.username >>"
+            TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+            TAG="${USERNAME}-${TIMESTAMP}"
+            
+            echo "Building for user: ${USERNAME}"
+            echo "Tag: ${TAG}"
+            
+            # Build backend
+            cd app/backend
+            docker build \
+              --build-arg USERNAME=${USERNAME} \
+              -t ghcr.io/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}-backend:${TAG} \
+              -t ghcr.io/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}-backend:${USERNAME} \
+              .
+            cd ../..
+            
+            # Build frontend
+            cd app/frontend
+            docker build \
+              --build-arg USERNAME=${USERNAME} \
+              -t ghcr.io/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}-frontend:${TAG} \
+              -t ghcr.io/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}-frontend:${USERNAME} \
+              .
+            cd ../..
+      - run:
+          name: Push to GitHub Container Registry
+          command: |
+            USERNAME="<< pipeline.parameters.username >>"
+            TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+            TAG="${USERNAME}-${TIMESTAMP}"
+            
+            echo "${GITHUB_TOKEN}" | docker login ghcr.io -u ${GITHUB_USERNAME} --password-stdin
+            
+            docker push ghcr.io/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}-backend:${TAG}
+            docker push ghcr.io/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}-backend:${USERNAME}
+            
+            docker push ghcr.io/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}-frontend:${TAG}
+            docker push ghcr.io/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}-frontend:${USERNAME}
+      - run:
+          name: Save image info
+          command: |
+            USERNAME="<< pipeline.parameters.username >>"
+            TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+            TAG="${USERNAME}-${TIMESTAMP}"
+            echo "${TAG}" > /tmp/image-tag.txt
+      - persist_to_workspace:
+          root: /tmp
+          paths:
+            - image-tag.txt
+
+  update-manifests:
+    executor: python-executor
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /tmp
+      - run:
+          name: Update Kubernetes manifests
+          command: |
+            USERNAME="<< pipeline.parameters.username >>"
+            TAG=$(cat /tmp/image-tag.txt)
+            
+            # Update backend deployment
+            sed -i "s|image: ghcr.io/.*/.*-backend:.*|image: ghcr.io/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}-backend:${TAG}|g" \
+              kubernetes/apps/backend/deployment.yaml
+            
+            # Update frontend deployment
+            sed -i "s|image: ghcr.io/.*/.*-frontend:.*|image: ghcr.io/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}-frontend:${TAG}|g" \
+              kubernetes/apps/frontend/deployment.yaml
+            
+            # Update ConfigMap with username
+            cat > kubernetes/apps/backend/configmap.yaml <<EOF
+            apiVersion: v1
+            kind: ConfigMap
+            metadata:
+              name: app-config
+              namespace: mlops-platform
+            data:
+              USERNAME: "${USERNAME}"
+              DEPLOYED_AT: "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+              IMAGE_TAG: "${TAG}"
+            EOF
+      - run:
+          name: Commit and push changes
+          command: |
+            USERNAME="<< pipeline.parameters.username >>"
+            TAG=$(cat /tmp/image-tag.txt)
+            
+            git config user.email "circleci@bot.com"
+            git config user.name "CircleCI Bot"
+            
+            git add kubernetes/apps/
+            git commit -m "🚀 Deploy for ${USERNAME} - ${TAG}" || echo "No changes to commit"
+            
+            git push origin main
+
+workflows:
+  version: 2
+  
+  # Workflow normal para PRs y commits
+  test-only:
+    when:
+      not: << pipeline.parameters.trigger-deploy >>
+    jobs:
+      - test-backend
+      - test-frontend
+  
+  # Workflow completo cuando se triggerea desde la web
+  personalized-deployment:
+    when: << pipeline.parameters.trigger-deploy >>
+    jobs:
+      - test-backend
+      - test-frontend
+      - build-and-push:
+          requires:
+            - test-backend
+            - test-frontend
+          context:
+            - github-packages
+      - update-manifests:
+          requires:
+            - build-and-push
+          context:
+            - github-packages
