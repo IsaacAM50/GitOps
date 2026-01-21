@@ -78,7 +78,7 @@ jobs:
       - run:
           name: Build personalized images
           command: |
-            USERNAME="<< pipeline.parameters.username >>"
+            USERNAME="\<< pipeline.parameters.username >>"
             TIMESTAMP=$(date +%Y%m%d-%H%M%S)
             TAG="${USERNAME}-${TIMESTAMP}"
             
@@ -105,7 +105,7 @@ jobs:
       - run:
           name: Push to GitHub Container Registry
           command: |
-            USERNAME="<< pipeline.parameters.username >>"
+            USERNAME="\<< pipeline.parameters.username >>"
             TIMESTAMP=$(date +%Y%m%d-%H%M%S)
             TAG="${USERNAME}-${TIMESTAMP}"
             
@@ -119,7 +119,7 @@ jobs:
       - run:
           name: Save image info
           command: |
-            USERNAME="<< pipeline.parameters.username >>"
+            USERNAME="\<< pipeline.parameters.username >>"
             TIMESTAMP=$(date +%Y%m%d-%H%M%S)
             TAG="${USERNAME}-${TIMESTAMP}"
             echo "${TAG}" > /tmp/image-tag.txt
@@ -137,7 +137,7 @@ jobs:
       - run:
           name: Update Kubernetes manifests
           command: |
-            USERNAME="<< pipeline.parameters.username >>"
+            USERNAME="\<< pipeline.parameters.username >>"
             TAG=$(cat /tmp/image-tag.txt)
             
             # Update backend deployment
@@ -148,22 +148,15 @@ jobs:
             sed -i "s|image: ghcr.io/.*/.*-frontend:.*|image: ghcr.io/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}-frontend:${TAG}|g" \
               kubernetes/apps/frontend/deployment.yaml
             
-            # Update ConfigMap with username
-            cat > kubernetes/apps/backend/configmap.yaml <<EOF
-            apiVersion: v1
-            kind: ConfigMap
-            metadata:
-              name: app-config
-              namespace: mlops-platform
-            data:
-              USERNAME: "${USERNAME}"
-              DEPLOYED_AT: "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-              IMAGE_TAG: "${TAG}"
-            EOF
+            # Update ConfigMap with username (usando printf en lugar de heredoc)
+            printf 'apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: app-config\n  namespace: mlops-platform\ndata:\n  USERNAME: "%s"\n  DEPLOYED_AT: "%s"\n  IMAGE_TAG: "%s"\n' \
+              "${USERNAME}" \
+              "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+              "${TAG}" > kubernetes/apps/backend/configmap.yaml
       - run:
           name: Commit and push changes
           command: |
-            USERNAME="<< pipeline.parameters.username >>"
+            USERNAME="\<< pipeline.parameters.username >>"
             TAG=$(cat /tmp/image-tag.txt)
             
             git config user.email "circleci@bot.com"
@@ -180,14 +173,14 @@ workflows:
   # Workflow normal para PRs y commits
   test-only:
     when:
-      not: << pipeline.parameters.trigger-deploy >>
+      not: \<< pipeline.parameters.trigger-deploy >>
     jobs:
       - test-backend
       - test-frontend
   
   # Workflow completo cuando se triggerea desde la web
   personalized-deployment:
-    when: << pipeline.parameters.trigger-deploy >>
+    when: \<< pipeline.parameters.trigger-deploy >>
     jobs:
       - test-backend
       - test-frontend
