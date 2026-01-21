@@ -1,5 +1,4 @@
-FROM python:3.11-slim
-
+FROM --platform=$BUILDPLATFORM python:3.11-slim AS builder
 # Argumento de build para personalización
 ARG USERNAME=demo
 ENV USERNAME=${USERNAME}

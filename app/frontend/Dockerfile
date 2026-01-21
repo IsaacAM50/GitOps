@@ -1,39 +1,34 @@
-# Build stage
+# ============================================
+# Stage 1: Build
+# ============================================
 FROM node:18-alpine AS builder
 
 # Argumento de build para personalización
 ARG USERNAME=demo
-ENV REACT_APP_USERNAME=${USERNAME}
+ENV VITE_USERNAME=${USERNAME}
 
+# Establecer directorio de trabajo
 WORKDIR /app
 
-# Copiar package files
-COPY package*.json ./
+# Copiar archivos de dependencias
+COPY package.json ./
 
-# Instalar dependencias
-RUN npm ci
+# Instalar dependencias (sin package-lock.json)
+RUN npm install --legacy-peer-deps
+
+# Copiar archivos de configuración
+COPY vite.config.js ./
+COPY tailwind.config.js ./
+COPY postcss.config.js ./
+COPY index.html ./
 
 # Copiar código fuente
-COPY . .
+COPY src/ ./src/
+COPY public/ ./public/
 
 # Build de producción
 RUN npm run build
 
-# Production stage
-FROM nginx:alpine
+EXPOSE 3000
 
-# Copiar build desde builder
-COPY --from=builder /app/build /usr/share/nginx/html
-
-# Copiar configuración de nginx personalizada
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-# Exponer puerto
-EXPOSE 80
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget --quiet --tries=1 --spider http://localhost/ || exit 1
-
-# Nginx se ejecuta en foreground por defecto
-CMD ["nginx", "-g", "daemon off;"]
+CMD [ "npm", "run", "preview" ]
