@@ -143,11 +143,11 @@ jobs:
             
             echo "${GITHUB_TOKEN}" | docker login ghcr.io -u ${GITHUB_USERNAME} --password-stdin
             
-            docker push ghcr.io/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}-backend:${TAG}
-            docker push ghcr.io/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}-backend:${USERNAME}
+            docker push ghcr.io/${PROJECT_USERNAME}/${PROJECT_REPONAME}-backend:${TAG}
+            docker push ghcr.io/${PROJECT_USERNAME}/${PROJECT_REPONAME}-backend:${USERNAME}
             
-            docker push ghcr.io/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}-frontend:${TAG}
-            docker push ghcr.io/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}-frontend:${USERNAME}
+            docker push ghcr.io/${PROJECT_USERNAME}/${PROJECT_REPONAME}-frontend:${TAG}
+            docker push ghcr.io/${PROJECT_USERNAME}/${PROJECT_REPONAME}-frontend:${USERNAME}
       - run:
           name: Save image info
           command: |
