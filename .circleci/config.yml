@@ -104,13 +104,16 @@ jobs:
             
             echo "Building for user: ${USERNAME}"
             echo "Tag: ${TAG}"
+            PROJECT_USERNAME=$(echo "${CIRCLE_PROJECT_USERNAME}" | tr '[:upper:]' '[:lower:]')
+            PROJECT_REPONAME=$(echo "${CIRCLE_PROJECT_REPONAME}" | tr '[:upper:]' '[:lower:]')
+             echo "Docker repo: ${PROJECT_USERNAME}/${PROJECT_REPONAME}"
             
             # Build backend
             cd app/backend
             docker build \
               --build-arg USERNAME=${USERNAME} \
-              -t ghcr.io/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}-backend:${TAG} \
-              -t ghcr.io/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}-backend:${USERNAME} \
+              -t ghcr.io/${PROJECT_USERNAME}/${PROJECT_REPONAME}-backend:${TAG} \
+              -t ghcr.io/${PROJECT_USERNAME}/${PROJECT_REPONAME}-backend:${USERNAME} \
               .
             cd ../..
             
@@ -118,8 +121,8 @@ jobs:
             cd app/frontend
             docker build \
               --build-arg USERNAME=${USERNAME} \
-              -t ghcr.io/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}-frontend:${TAG} \
-              -t ghcr.io/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}-frontend:${USERNAME} \
+              -t ghcr.io/${PROJECT_USERNAME}/${PROJECT_REPONAME}-frontend:${TAG} \
+              -t ghcr.io/${PROJECT_USERNAME}/${PROJECT_REPONAME}-frontend:${USERNAME} \
               .
             cd ../..
       - run:
