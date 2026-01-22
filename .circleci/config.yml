@@ -58,7 +58,7 @@ jobs:
           name: Install dependencies
           command: |
             cd app/frontend
-            npm ci
+            npm install
       - save_cache:
           key: node-{{ checksum "app/frontend/package-lock.json" }}
           paths:
