@@ -138,8 +138,8 @@ jobs:
           name: Push to GitHub Container Registry
           command: |
             # DEFINIR las variables aquí también
-            PROJECT_USERNAME=$(echo "${CIRCLE_PROJECT_USERNAME}" | tr '[:upper:]' '[:lower:]")
-            PROJECT_REPONAME=$(echo "${CIRCLE_PROJECT_REPONAME}" | tr '[:upper:]' '[:lower:]")
+            PROJECT_USERNAME=$(echo "${CIRCLE_PROJECT_USERNAME}" | tr '[:upper:]' '[:lower:]')
+            PROJECT_REPONAME=$(echo "${CIRCLE_PROJECT_REPONAME}" | tr '[:upper:]' '[:lower:]')
             
             echo "Using:"
             USERNAME="<< pipeline.parameters.username >>"
