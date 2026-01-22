@@ -24,6 +24,7 @@ COPY index.html ./
 
 # Copiar código fuente
 COPY src/ ./src/
+
 COPY public/ ./public/
 
 # Build de producción
