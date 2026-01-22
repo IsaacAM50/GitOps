@@ -106,9 +106,11 @@ jobs:
             echo "Tag: ${TAG}"
             PROJECT_USERNAME=$(echo "${CIRCLE_PROJECT_USERNAME}" | tr '[:upper:]' '[:lower:]')
             PROJECT_REPONAME=$(echo "${CIRCLE_PROJECT_REPONAME}" | tr '[:upper:]' '[:lower:]')
-             echo "Docker repo: ${PROJECT_USERNAME}/${PROJECT_REPONAME}"
+            echo "Docker repo: ${PROJECT_USERNAME}/${PROJECT_REPONAME}"
             
             # Build backend
+            # Setup Docker Buildx
+            docker buildx create --use
             cd app/backend
             docker build \
               --build-arg USERNAME=${USERNAME} \
