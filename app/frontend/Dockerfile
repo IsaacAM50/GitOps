@@ -10,6 +10,9 @@ ENV VITE_USERNAME=${USERNAME}
 # Establecer directorio de trabajo
 WORKDIR /app
 
+# Crear directorios vacíos si no existen
+RUN mkdir -p src public
+
 # Copiar archivos de dependencias
 COPY package.json ./
 
@@ -25,8 +28,7 @@ COPY index.html ./
 # Copiar código fuente
 COPY src/ ./src/
 
-# Crear directorios vacíos si no existen
-RUN mkdir -p src public
+
 COPY public/ ./public/
 
 # Build de producción
