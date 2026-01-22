@@ -25,6 +25,8 @@ COPY index.html ./
 # Copiar código fuente
 COPY src/ ./src/
 
+# Crear directorios vacíos si no existen
+RUN mkdir -p src public
 COPY public/ ./public/
 
 # Build de producción
