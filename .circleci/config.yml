@@ -102,6 +102,14 @@ jobs:
             TIMESTAMP=$(date +%Y%m%d-%H%M%S)
             TAG="${USERNAME}-${TIMESTAMP}"
             
+            # CORREGIR Dockerfile del backend ANTES de construir
+            echo "Fixing backend Dockerfile..."
+            sed -i 's/FROM --platform=\$BUILDPLATFORM/FROM/g' app/backend/Dockerfile
+            
+            # Verificar que se corrigió
+            echo "First line of backend Dockerfile:"
+            head -1 app/backend/Dockerfile
+
             echo "Building for user: ${USERNAME}"
             echo "Tag: ${TAG}"
             PROJECT_USERNAME=$(echo "${CIRCLE_PROJECT_USERNAME}" | tr '[:upper:]' '[:lower:]')
@@ -110,7 +118,6 @@ jobs:
             
             # Build backend
             # Setup Docker Buildx
-            docker buildx create --use
             cd app/backend
             docker build \
               --build-arg USERNAME=${USERNAME} \
