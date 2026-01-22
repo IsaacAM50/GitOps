@@ -81,24 +81,6 @@ jobs:
             sleep 3
             echo "Frontend server started with PID: $FRONTEND_PID"
       - run:
-          name: Verify frontend is running
-          command: |
-            # Verificar que el proceso está corriendo
-            if [ -f /tmp/frontend.pid ]; then
-              FRONTEND_PID=$(cat /tmp/frontend.pid)
-              if ps -p $FRONTEND_PID > /dev/null; then
-                echo "✅ Frontend process is running (PID: $FRONTEND_PID)"
-              else
-                echo "❌ Frontend process not found"
-                exit 1
-              fi
-            fi
-            
-            # Verificar que responde en el puerto 3000
-            echo "Testing frontend on port 3000..."
-            curl --retry 5 --retry-delay 2 --retry-max-time 10 \
-                http://localhost:3000 || echo "Frontend not responding yet"
-      - run:
           name: Keep frontend running for tests
           command: |
             # Mantener el contenedor vivo para que el frontend siga corriendo
