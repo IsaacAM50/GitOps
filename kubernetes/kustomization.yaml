@@ -11,9 +11,3 @@ resources:
 - frontend-configmap.yaml
 - frontend-service.yaml
 
-# Configuración común
-namespace: gitops-app
-commonLabels:
-  app: gitops
-  managed-by: kustomize
-  environment: base
