@@ -42,17 +42,6 @@ spec:
             name: app-secrets
             key: github-token
 
-      # ConfigMap values
-      - name: APP_NAME
-        valueFrom:
-          configMapKeyRef:
-            name: app-config
-            key: app-name
-      - name: DEPLOYED_AT
-        valueFrom:
-          configMapKeyRef:
-            name: app-config
-            key: deployed-at
 ---
 apiVersion: v1
 kind: Service
