@@ -1,0 +1,19 @@
+# k8s/base/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Recursos a incluir
+resources:
+- backend-deployment.yaml
+- backend-secrets.yaml
+- backend-service.yaml
+- frontend-deployment.yaml
+- frontend-configmap.yaml
+- frontend-service.yaml
+
+# Configuración común
+namespace: gitops-app
+commonLabels:
+  app: gitops
+  managed-by: kustomize
+  environment: base
