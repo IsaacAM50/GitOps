@@ -42,14 +42,3 @@ spec:
             name: app-secrets
             key: github-token
 
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: gitops-backend-service
-spec:
-  selector:
-    app: gitops-backend
-  ports:
-  - port: 8000
-    targetPort: 8000
