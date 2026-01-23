@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  app-name: "GitOps Platform"
+  username: "isaac"
+  version: "1.0.0"
+  deployed-at: "2024-01-22T20:00:00Z"
+  backend-url: "http://gitops-backend-service:8000"
+  frontend-url: "http://gitops-frontend-service:3000"
+  log-level: "INFO"
+  max-retries: "3"
+  timeout-seconds: "30"

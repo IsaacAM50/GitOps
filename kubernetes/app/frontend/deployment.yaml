@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitops-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gitops-frontend
+  template:
+    metadata:
+      labels:
+        app: gitops-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: ghcr.io/isaacam50/gitops-frontend:latest
+        ports:
+        - containerPort: 3000

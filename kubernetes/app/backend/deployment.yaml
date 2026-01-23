@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitops-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gitops-backend
+  template:
+    metadata:
+      labels:
+        app: gitops-backend
+    spec:
+      containers:
+      - name: backend
+      image: ghcr.io/isaacam50/gitops-backend:latest
+      ports:
+      - containerPort: 8000
+      env:
+      # Variables normales
+      - name: USERNAME
+        value: "isaac"
+      - name: ENVIRONMENT
+        value: "production"
+      - name: LOG_LEVEL
+        value: "INFO"
+      - name: PORT
+        value: "8000"
+      - name: HOST
+        value: "0.0.0.0"
+      
+      # Secrets (referencias)
+      - name: CIRCLECI_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: app-secrets
+            key: circleci-token
+      - name: GITHUB_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: app-secrets
+            key: github-token
+
+      # ConfigMap values
+      - name: APP_NAME
+        valueFrom:
+          configMapKeyRef:
+            name: app-config
+            key: app-name
+      - name: DEPLOYED_AT
+        valueFrom:
+          configMapKeyRef:
+            name: app-config
+            key: deployed-at
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gitops-backend-service
+spec:
+  selector:
+    app: gitops-backend
+  ports:
+  - port: 8000
+    targetPort: 8000
