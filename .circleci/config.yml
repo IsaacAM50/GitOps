@@ -201,7 +201,6 @@ jobs:
             
             # Configuración mínima de git
             git config user.name "${GITHUB_USERNAME}"
-            cd manifests-repo
           
             # Configurar git (mínimo)
             git config user.name "${GITHUB_USERNAME}"
