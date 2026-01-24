@@ -239,7 +239,7 @@ jobs:
             git config user.email "circleci@bot.com"
             git config user.name "CircleCI Bot"
             
-            git add kubernetes/apps/
+            git add kubernetes
             git commit -m "🚀 Deploy for ${USERNAME} - ${TAG}" || echo "No changes to commit"
             
             git push origin main
