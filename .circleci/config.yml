@@ -201,6 +201,36 @@ jobs:
             
             # Configuración mínima de git
             git config user.name "${GITHUB_USERNAME}"
+            cd manifests-repo
+          
+            # Configurar git (mínimo)
+            git config user.name "${GITHUB_USERNAME}"
+            git config user.email "${GITHUB_USERNAME}@users.noreply.github.com"
+            
+            # Ruta específica al archivo
+            DEPLOYMENT_FILE="kubernetes/backend-deployment.yaml"
+            
+            # Verificar que el archivo existe
+            if [ ! -f "${DEPLOYMENT_FILE}" ]; then
+              echo "❌ Archivo no encontrado: ${DEPLOYMENT_FILE}"
+              echo "Archivos en la carpeta kubernetes/:"
+              ls -la kubernetes/ 2>/dev/null || ls -la
+              exit 1
+            fi
+            
+            echo "📄 Archivo encontrado: ${DEPLOYMENT_FILE}"
+            
+            # Mostrar la imagen actual
+            echo "📷 Imagen actual:"
+            grep "image:" "${DEPLOYMENT_FILE}"
+            
+            # Actualizar SOLO la línea de la imagen
+            # Reemplaza cualquier cosa después de "image: " hasta el final de la línea
+            sed -i "s|\(image: \).*|\1ghcr.io/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}-backend:${TAG}|" "${DEPLOYMENT_FILE}"
+            
+            # Verificar el cambio
+            echo "✅ Imagen actualizada:"
+            grep "image:" "${DEPLOYMENT_FILE}"
       - run:
           name: Commit and push changes
           command: |
