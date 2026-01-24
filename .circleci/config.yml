@@ -179,21 +179,28 @@ jobs:
           name: Update Kubernetes manifests
           command: |
             USERNAME="<< pipeline.parameters.username >>"
+            # Leer el tag generado
             TAG=$(cat /tmp/image-tag.txt)
             
-            # Update backend deployment
-            sed -i "s|image: ghcr.io/.*/.*-backend:.*|image: ghcr.io/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}-backend:${TAG}|g" \
-              kubernetes/apps/backend/deployment.yaml
+            # Variables (de CircleCI Environment Variables)
+            # GITHUB_USERNAME - ya está disponible en el contexto github-packages
+            # GITOPS_REPO_NAME - nombre del repo de manifests (ej: "GitOps-Manifest")
+            # GITHUB_TOKEN - token para autenticación
             
-            # Update frontend deployment
-            sed -i "s|image: ghcr.io/.*/.*-frontend:.*|image: ghcr.io/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPOName}-frontend:${TAG}|g" \
-              kubernetes/apps/frontend/deployment.yaml
+            echo "🔄 Updating deployment with tag: ${TAG}"
+            echo "📦 GitOps Repo: ${GITOPS_REPO_NAME}"
+            echo "👤 GitHub User: ${GITHUB_USERNAME}"
             
-            # Update ConfigMap with username (usando printf en lugar de heredoc)
-            printf 'apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: app-config\n  namespace: mlops-platform\ndata:\n  USERNAME: "%s"\n  DEPLOYED_AT: "%s"\n  IMAGE_TAG: "%s"\n' \
-              "${USERNAME}" \
-              "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-              "${TAG}" > kubernetes/apps/backend/configmap.yaml
+            # Construir URL del repo
+            REPO_URL="https://github.com/${GITHUB_USERNAME}/${GITOPS_REPO_NAME}.git"
+            echo "🔗 Cloning from: ${REPO_URL}"
+            
+            # Clonar el repositorio de manifests
+            git clone https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${GITOPS_REPO_NAME}.git manifests-repo
+            cd manifests-repo
+            
+            # Configuración mínima de git
+            git config user.name "${GITHUB_USERNAME}"
       - run:
           name: Commit and push changes
           command: |
