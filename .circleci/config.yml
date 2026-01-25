@@ -229,7 +229,7 @@ jobs:
             
             # Verificar el cambio
             echo "✅ Imagen actualizada:"
-            grep "image:" "${DEPLOYMENT_FILE}"
+            grep "image:" "${DEPLOYMENT_FILE}" 
       - run:
           name: Commit and push changes
           command: |
