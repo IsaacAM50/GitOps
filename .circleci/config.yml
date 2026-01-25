@@ -233,7 +233,6 @@ jobs:
       - run:
           name: Commit and push changes
           command: |
-            cd kubernetes
             git add "${DEPLOYMENT_FILE}"
             git commit -m "Update image to ${TAG}}
 
