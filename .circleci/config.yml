@@ -196,8 +196,9 @@ jobs:
             echo "🔗 Cloning from: ${REPO_URL}"
             
             # Clonar el repositorio de manifests
-            git clone https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${GITOPS_REPO_NAME} 
-            
+            git clone https://${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${GITOPS_REPO_NAME} kubernetes
+            cd kubernetes
+
             # Configuración mínima de git
             git config user.name "${GITHUB_USERNAME}"
           
@@ -232,16 +233,9 @@ jobs:
       - run:
           name: Commit and push changes
           command: |
-            USERNAME="<< pipeline.parameters.username >>"
-            TAG=$(cat /tmp/image-tag.txt)
-            
-            git config user.email "circleci@bot.com"
-            git config user.name "CircleCI Bot"
-            
+            cd kubernetes
             git add "${DEPLOYMENT_FILE}"
-            git commit -m "🚀 Deploy for ${USERNAME} - ${TAG}" || echo "No changes to commit"
-            
-            git push origin main
+            git commit -m "Update image to ${TAG}}
 
 workflows:
   version: 2
