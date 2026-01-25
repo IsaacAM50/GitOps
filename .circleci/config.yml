@@ -181,7 +181,8 @@ jobs:
             USERNAME="<< pipeline.parameters.username >>"
             # Leer el tag generado
             TAG=$(cat /tmp/image-tag.txt)
-            
+            rm -rf gitops-repo
+            cd /tmp/gitops-repo
             # Variables (de CircleCI Environment Variables)
             # GITHUB_USERNAME - ya está disponible en el contexto github-packages
             # GITOPS_REPO_NAME - nombre del repo de manifests (ej: "GitOps-Manifest")
