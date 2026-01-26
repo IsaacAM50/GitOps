@@ -193,7 +193,7 @@ jobs:
             
             # Construir URL del repo
             REPO_URL="https://github.com/${GITHUB_USERNAME}/${GITOPS_REPO_NAME}.git"
-            echo " Cloning from: ${REPO_URL}
+            echo "Cloning from: ${REPO_URL}"
 
             # Clonar el repositorio de manifests
             git clone https://${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${GITOPS_REPO_NAME} kubernetes
@@ -234,7 +234,7 @@ jobs:
           name: Commit and push changes
           command: |
             git add "${DEPLOYMENT_FILE}"
-            git commit -m "Update image to ${TAG}}
+            git commit -m "Update image to ${TAG}"
 
 workflows:
   version: 2
