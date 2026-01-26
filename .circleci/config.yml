@@ -162,7 +162,7 @@ jobs:
           command: |
             USERNAME="<< pipeline.parameters.username >>"
             TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-            TAG="${USERNAME}-${TIMESTAMP}"
+            TAG=$(cat /tmp/docker-tag.txt)
             echo "${TAG}" > /tmp/image-tag.txt
       - persist_to_workspace:
           root: /tmp
