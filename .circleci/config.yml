@@ -196,7 +196,9 @@ jobs:
             echo "Cloning from: ${REPO_URL}"
 
             # Clonar el repositorio de manifests
-            git clone https://${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${GITOPS_REPO_NAME} kubernetes
+            git clone https://${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${GITOPS_REPO_NAME} 
+            cd ${GITOPS_REPO_NAME}
+            cd kubernetes
 
             # Configuración mínima de git
             git config user.name "${GITHUB_USERNAME}"
