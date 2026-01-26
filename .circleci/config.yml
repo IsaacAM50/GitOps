@@ -188,6 +188,9 @@ jobs:
             # Leer el tag generado
             TAG=$(cat /tmp/image-tag.txt)
             rm -rf gitops-repo
+
+            PROJECT_USERNAME=$(echo "${CIRCLE_PROJECT_USERNAME}" | tr '[:upper:]' '[:lower:]')
+            PROJECT_REPONAME=$(echo "${CIRCLE_PROJECT_REPONAME}" | tr '[:upper:]' '[:lower:]')
             # Variables (de CircleCI Environment Variables)
             # GITHUB_USERNAME - ya está disponible en el contexto github-packages
             # GITOPS_REPO_NAME - nombre del repo de manifests (ej: "GitOps-Manifest")
