@@ -207,7 +207,7 @@ jobs:
             git config user.email "${GITHUB_USERNAME}@users.noreply.github.com"
             
             # Ruta específica al archivo
-            DEPLOYMENT_FILE="backend-deployment.yaml"
+            DEPLOYMENT_FILE="kubernetes/backend-deployment.yaml"
             
             # Verificar que el archivo existe
             if [ ! -f "${DEPLOYMENT_FILE}" ]; then
