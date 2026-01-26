@@ -246,6 +246,11 @@ jobs:
             # Commit y push
             git add "${DEPLOYMENT_FILE}"
             
+            git commit -m "Update backend image to ${TAG}"
+            git push origin main
+            
+            echo "✅ Deployment actualizado exitosamente!"
+            
 
 workflows:
   version: 2
