@@ -230,11 +230,10 @@ jobs:
             # Verificar el cambio
             echo "Imagen actualizada:"
             grep "image:" "${DEPLOYMENT_FILE}" 
-      - run:
-          name: Commit and push changes
-          command: |
+
             git add "${DEPLOYMENT_FILE}" 
             git commit -m "Update image to ${TAG}"
+            
 
 workflows:
   version: 2
