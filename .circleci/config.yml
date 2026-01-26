@@ -234,7 +234,7 @@ jobs:
       - run:
           name: Commit and push changes
           command: |
-            git add "${DEPLOYMENT_FILE}" .
+            git add .
             git commit -m "Update image to ${TAG}"
 
 workflows:
