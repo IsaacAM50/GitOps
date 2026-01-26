@@ -176,6 +176,12 @@ jobs:
       - attach_workspace:
           at: /tmp
       - run:
+          name: Install yq
+          command: |
+            sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+            sudo chmod +x /usr/local/bin/yq
+            yq --version
+      - run:
           name: Update Kubernetes manifests
           command: |
             USERNAME="<< pipeline.parameters.username >>"
@@ -221,18 +227,24 @@ jobs:
             
             # Mostrar la imagen actual
             echo "📷 Imagen actual:"
-            grep "image:" "${DEPLOYMENT_FILE}"
+            NEW_IMAGE="ghcr.io/${PROJECT_USERNAME}/${PROJECT_REPONAME}-backend:${TAG}"
             
-            # Actualizar SOLO la línea de la imagen
-            # Reemplaza cualquier cosa después de "image: " hasta el final de la línea
-            sed -i "s|\(image: \).*|\1ghcr.io/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}-backend:${TAG}|" "${DEPLOYMENT_FILE}"
+            echo "📷 Imagen actual:"
+            yq eval '.spec.template.spec.containers[0].image' "${DEPLOYMENT_FILE}"
             
-            # Verificar el cambio
-            echo "Imagen actualizada:"
-            grep "image:" "${DEPLOYMENT_FILE}" 
-
-            git add "${DEPLOYMENT_FILE}" 
-            git commit -m "Update image to ${TAG}"
+            echo "🎯 Nueva imagen: ${NEW_IMAGE}"
+            
+            # Actualizar la imagen usando yq
+            yq eval ".spec.template.spec.containers[0].image = \"${NEW_IMAGE}\"" -i "${DEPLOYMENT_FILE}"
+            
+            echo "✅ Imagen actualizada:"
+            yq eval '.spec.template.spec.containers[0].image' "${DEPLOYMENT_FILE}"
+            
+            # Verificar cambios
+            git diff "${DEPLOYMENT_FILE}"
+            
+            # Commit y push
+            git add "${DEPLOYMENT_FILE}"
             
 
 workflows:
