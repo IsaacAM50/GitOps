@@ -198,7 +198,6 @@ jobs:
             # Clonar el repositorio de manifests
             git clone https://${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${GITOPS_REPO_NAME} 
             cd ${GITOPS_REPO_NAME}
-            cd kubernetes
 
             # Configuración mínima de git
             git config user.name "${GITHUB_USERNAME}"
@@ -234,7 +233,7 @@ jobs:
       - run:
           name: Commit and push changes
           command: |
-            git add .
+            git add "${DEPLOYMENT_FILE}" 
             git commit -m "Update image to ${TAG}"
 
 workflows:
