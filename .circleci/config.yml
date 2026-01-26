@@ -187,13 +187,13 @@ jobs:
             # GITOPS_REPO_NAME - nombre del repo de manifests (ej: "GitOps-Manifest")
             # GITHUB_TOKEN - token para autenticación
             
-            echo "🔄 Updating deployment with tag: ${TAG}"
-            echo "📦 GitOps Repo: ${GITOPS_REPO_NAME}"
-            echo "👤 GitHub User: ${GITHUB_USERNAME}"
+            echo "Updating deployment with tag: ${TAG}"
+            echo "GitOps Repo: ${GITOPS_REPO_NAME}"
+            echo "GitHub User: ${GITHUB_USERNAME}"
             
             # Construir URL del repo
             REPO_URL="https://github.com/${GITHUB_USERNAME}/${GITOPS_REPO_NAME}.git"
-            echo "🔗 Cloning from: ${REPO_URL}
+            echo " Cloning from: ${REPO_URL}
 
             # Clonar el repositorio de manifests
             git clone https://${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${GITOPS_REPO_NAME} kubernetes
@@ -211,7 +211,7 @@ jobs:
             
             # Verificar que el archivo existe
             if [ ! -f "${DEPLOYMENT_FILE}" ]; then
-              echo "❌ Archivo no encontrado: ${DEPLOYMENT_FILE}"
+              echo " Archivo no encontrado: ${DEPLOYMENT_FILE}"
               echo "Archivos en la carpeta kubernetes/:"
               ls -la kubernetes/ 2>/dev/null || ls -la
               exit 1
@@ -228,7 +228,7 @@ jobs:
             sed -i "s|\(image: \).*|\1ghcr.io/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}-backend:${TAG}|" "${DEPLOYMENT_FILE}"
             
             # Verificar el cambio
-            echo "✅ Imagen actualizada:"
+            echo "Imagen actualizada:"
             grep "image:" "${DEPLOYMENT_FILE}" 
       - run:
           name: Commit and push changes
