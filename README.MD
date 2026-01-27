@@ -318,7 +318,6 @@ kubectl describe pod POD_NAME -n gitops-app
 kubectl port-forward svc/gitops-backend-service -n gitops-app 8000:8000
 ```
 
-##  Para Reclutadores
 
 Este proyecto demuestra:
 
@@ -346,28 +345,7 @@ Este proyecto demuestra:
 
 ##  Contribución
 
-Este es un proyecto de portfolio personal. Si encuentras bugs o tienes sugerencias:
-
-1. Fork el proyecto
-2. Crea tu feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la branch (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
-
-## 📝 Licencia
-
-Este proyecto es de código abierto y está disponible bajo la [MIT License](LICENSE).
-
-## 👤 Autor
-
-**Isaac Mensah Adams**
-
-- 💼 DevOps Engineer
-- 📧 Email: isaac.adams@blueoption.io
-- 🔗 LinkedIn: [linkedin.com/in/isaac-adams-mensah4935a9237](https://www.linkedin.com/in/isaac-adams-mensah4935a9237/)
-- 🐙 GitHub: [@isaac-adams](https://github.com/isaac-adams)
-
----
+Este es un proyecto de portfolio personal. Si encuentras bugs o tienes sugerencias contactame por mi LinkedIn
 
 <div align="center">
 
