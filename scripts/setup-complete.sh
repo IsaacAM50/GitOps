@@ -167,11 +167,11 @@ if minikube status &> /dev/null; then
         log_info "Eliminando cluster..."
         minikube delete
         log_info "Iniciando nuevo cluster..."
-        minikube start --cpus=4 --memory=8192 --driver=docker
+        minikube start --cpus=4 --memory=22000 --driver=docker
     fi
 else
     log_info "Iniciando Minikube..."
-    minikube start --cpus=4 --memory=8192 --driver=docker
+    minikube start --cpus=4 --memory=2200 --driver=docker
 fi
 
 log_success "Minikube está listo"
