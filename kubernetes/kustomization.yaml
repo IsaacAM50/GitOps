@@ -5,6 +5,7 @@ kind: Kustomization
 # Recursos a incluir
 resources:
 - backend-deployment.yaml
+- backend-service.yaml
 - backend-secrets.yaml
 - frontend-deployment.yaml
 - frontend-configmap.yaml
