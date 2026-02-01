@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from metrics import MetricsMiddleware, track_deployment, get_metrics
+
+from app.metrics import MetricsMiddleware, track_deployment, get_metrics
 from pydantic import BaseModel
 import httpx
 import os
