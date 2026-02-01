@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from metrics import MetricsMiddleware, track_deployment, get_metrics
 from pydantic import BaseModel
 import httpx
 import os
@@ -15,6 +16,7 @@ app = FastAPI(
     version="1.0.0"
 )
 
+app = MetricsMiddleware(app) 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -62,6 +64,7 @@ async def health():
     }
 
 @app.post("/api/deploy", response_model=DeployResponse)
+@track_deployment()  
 async def trigger_deployment(request: DeployRequest):
     """
     Triggerea un pipeline de CircleCI con el username personalizado
@@ -212,6 +215,13 @@ async def get_pipeline_status(pipeline_id: str):
             status_code=500,
             detail=f"Error de conexión: {str(e)}"
         )
+@app.get("/metrics")
+async def metrics():
+    """Endpoint para Prometheus"""
+    return Response(
+        content=get_metrics(),
+        media_type="text/plain"
+    )
 
 if __name__ == "__main__":
     import uvicorn
