@@ -77,7 +77,11 @@ helm install prometheus prometheus-community/prometheus \
   -n monitoring --create-namespace 
 
 helm repo add grafana https://grafana.github.io/helm-charts
-helm install grafana grafana/grafana -n monitoring
+helm install grafana grafana/grafana \
+  -n monitoring \
+  --set service.port=80 \
+  --set service.targetPort=3001 \
+  --set server.httpPort=3001
 
 GRAFANA_PASSWORD=$(kubectl get secret -n monitoring grafana -o jsonpath="{.data.admin-password}" | base64 --decode)
 echo "Prometheus: localhost:9090"
