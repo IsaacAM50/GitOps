@@ -27,7 +27,7 @@ fi
 echo ""
 echo "=== 1. PRERREQUISITOS ==="
 
-for cmd in docker kubectl minikube git python3 node kubeseal; do
+for cmd in docker kubectl minikube git python3 node kubeseal helm; do
     if ! command -v $cmd &> /dev/null; then
         echo_error "$cmd no instalado"
         exit 1
@@ -65,7 +65,25 @@ if minikube status &> /dev/null; then
     fi
 else
     minikube start --cpus=4 --memory=2200 --driver=docker
+    
 fi
+
+echo "=== 3.1 METRICAS ==="
+
+minikube addons enable metrics-server
+echo "=== 3.2 INSTALAR PROMETHEUS Y GRAFANA ==="
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm install prometheus prometheus-community/prometheus \
+  -n monitoring --create-namespace 
+
+helm repo add grafana https://grafana.github.io/helm-charts
+helm install grafana grafana/grafana -n monitoring
+
+GRAFANA_PASSWORD=$(kubectl get secret -n monitoring grafana -o jsonpath="{.data.admin-password}" | base64 --decode)
+echo "Prometheus: localhost:9090"
+echo "Grafana; localhost:3000"
+echo "Usuario: admin"
+echo "Grafana Password: $GRAFANA_PASSWORD"
 
 echo ""
 echo "=== 4. INSTALAR ARGOCD Y SEALED SECRETS ==="
@@ -193,7 +211,13 @@ echo "=== COMPLETADO ==="
 echo "ArgoCD: https://localhost:8080"
 echo "Usuario: admin"
 echo "Password: $ARGOCD_PASSWORD"
+echo "Prometheus: https://localhost:9090"
+echo "Grafana; https://localhost:3000"
+echo "Usuario: admin"
+echo "Grafana Password: $GRAFANA_PASSWORD"
 echo ""
 echo "Certificado: sealed-secrets-pub-cert.pem"
 echo "Para crear secrets offline:"
 echo "kubeseal --cert sealed-secrets-pub-cert.pem -o yaml < secret.yaml > sealed-secret.yaml"
+echo "Port forward de los servicios necesarios ./scripts/port-forward.sh"
+echo "Borrar todo ./scripts/cleanup.sh"
